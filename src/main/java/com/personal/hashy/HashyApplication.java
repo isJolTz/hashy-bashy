@@ -9,9 +9,6 @@ public class HashyApplication {
 
 	public static void main(String[] args) {
 		//simplest stuff: get the file and hash file for breaking this down.
-		for (String s : args) {
-//			System.out.println(s);
-		}
 
 		//need 3 args: digest, file-to-digest, expected...
 		if (args.length < 3) {
@@ -20,7 +17,7 @@ public class HashyApplication {
 		}
 
 		//get the message digest for digest string..
-		MessageDigest digest = null;
+		MessageDigest digest;
 		try {
 			digest = MessageDigest.getInstance(args[0]);
 		} catch (NoSuchAlgorithmException ex) {
@@ -37,8 +34,8 @@ public class HashyApplication {
 		}
 
 		//hash file with the type, then compare to text of 2nd file
-		FileInputStream readFile = null;
-		byte[] fileBytes = null;
+		FileInputStream readFile;
+		byte[] fileBytes;
 
 		//read all bytes into mem at once... could split for digest if doesn't work.
 		int byteBuffLength = 4096;
@@ -46,15 +43,13 @@ public class HashyApplication {
 			fileBytes = new byte[byteBuffLength];
 		} else {
 			fileBytes = new byte[(int) file.length()];
-			byteBuffLength = (int) file.length();
 		}
 
 		try {
 			//fd is opened on read; gather bytes to digest.
 			readFile = new FileInputStream(file);
 
-			int bytesRead;
-			for (int i = 0; (bytesRead = readFile.read(fileBytes)) != -1; i++) {
+			for (int i = 0; (readFile.read(fileBytes)) != -1; i++) {
 				digest.update(fileBytes);
 			}
 
@@ -82,7 +77,7 @@ public class HashyApplication {
 			hashReader.close();
 
 
-			System.out.printf("COMPARING\n%s\n%s\n", digestText, exHashStr.toString());
+			System.out.printf("COMPARING\n%s\n%s\n", digestText, exHashStr);
 			//compare.
 			if (digestText.equals(exHashStr.toString())) {
 				System.out.printf("%s digest of %s MATCHES expected hash\n", args[0], args[1]);
@@ -92,11 +87,9 @@ public class HashyApplication {
 		} catch (FileNotFoundException ex) {
 			//missing file...
 			System.out.print(ex.getMessage());
-			return;
 		} catch (Exception ex) {
 			System.out.printf("monkaS: %s\n", ex.getMessage());
 			ex.printStackTrace();
-			return;
 		}
 	}
 
