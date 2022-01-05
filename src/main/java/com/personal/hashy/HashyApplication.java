@@ -35,23 +35,28 @@ public class HashyApplication {
 
 		//hash file with the type, then compare to text of 2nd file
 		FileInputStream readFile;
-		byte[] fileBytes;
-
-		//read all bytes into mem at once... could split for digest if doesn't work.
-		int byteBuffLength = 4096;
-		if (file.length() > Runtime.getRuntime().freeMemory()) {
-			fileBytes = new byte[byteBuffLength];
-		} else {
-			fileBytes = new byte[(int) file.length()];
-		}
 
 		try {
 			//fd is opened on read; gather bytes to digest.
 			readFile = new FileInputStream(file);
 
-			for (int i = 0; (readFile.read(fileBytes)) != -1; i++) {
-				digest.update(fileBytes);
-			}
+			int byteBuffLength = 524288; //512kB, 2^19
+			byte[] fileByteBuff = new byte[byteBuffLength];
+
+			//read while "have read" is less than filesize.
+			long haveReadBytes = 0;
+            long offset = file.length();
+			//next chunk read is here to next buff length, unless end is near.
+            while (haveReadBytes < offset) {
+
+				int readByteLen = (int) (((offset - haveReadBytes) >= byteBuffLength) ? byteBuffLength : (offset - haveReadBytes));
+
+				//read file and digest as we go along. (read into/from buffer starting at 0)
+				readFile.read(fileByteBuff, 0, readByteLen);
+				digest.update(fileByteBuff, 0, readByteLen);
+
+				haveReadBytes += readByteLen;
+            }
 
 			byte[] finishedDigest = digest.digest();
 
