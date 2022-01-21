@@ -66,9 +66,9 @@ public class HashyApplication {
 			//need to determine how to extract the digest...
 			char[] hexDigest = new char[finishedDigest.length * 2];
 			for (int j = 0; j < finishedDigest.length; j++) {
-				int v = finishedDigest[j] & 0xFF;
-				hexDigest[j * 2] = HEX_ARRAY[v >>> 4];
-				hexDigest[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+				int thisByte = finishedDigest[j] & 0xFF;
+				hexDigest[j * 2] = HEX_ARRAY[thisByte >>> 4];
+				hexDigest[j * 2 + 1] = HEX_ARRAY[thisByte & 0x0F];
 			}
 			String digestText = new String(hexDigest).toLowerCase(Locale.ROOT);
 
