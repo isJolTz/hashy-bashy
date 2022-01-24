@@ -70,7 +70,7 @@ public class HelloWorldSwing extends Frame implements ActionListener {
         label.setBounds(50,50,100,30);
         frame.getContentPane().add(label);
 
-        JButton button = new JButton(m"Weee Buttons");
+        JButton button = new JButton("Weee Buttons");
         button.setBounds(130,100,100,40);
         button.addActionListener(this);
         frame.add(button);
