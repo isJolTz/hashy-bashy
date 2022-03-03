@@ -16,18 +16,31 @@ public class HashyApplication {
 			return;
 		}
 
+		String algorithmString = args[0];
+		String fileToHash = args[1];
+		String hashToCompare = args[2];
+
+		try {
+			isFileMatchingExpected(algorithmString, fileToHash, hashToCompare);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void isFileMatchingExpected(String algorithmString, String fileToHash, String hashToCompare) throws NoSuchAlgorithmException {
+
 		//get the message digest for digest string..
 		MessageDigest digest;
 		try {
-			digest = MessageDigest.getInstance(args[0]);
+			digest = MessageDigest.getInstance(algorithmString);
 		} catch (NoSuchAlgorithmException ex) {
 			//no digest...
-//			System.out.print(ex.getMessage());
-			return;
+			System.out.print(ex.getMessage());
+			throw ex;
 		}
 
-		File file = new File(args[1]);
-		File expectedHash = new File(args[2]);
+		File file = new File(fileToHash);
+		File expectedHash = new File(hashToCompare);
 		if (!file.exists() || !expectedHash.exists()) {
 			System.out.println("Where the heck are the files?");
 			return;
@@ -45,18 +58,18 @@ public class HashyApplication {
 
 			//read while "have read" is less than filesize.
 			long haveReadBytes = 0;
-            long offset = file.length();
+			long offset = file.length();
 			//next chunk read is here to next buff length, unless end is near.
-            while (haveReadBytes < offset) {
+			while (haveReadBytes < offset) {
 
 				int readByteLen = (int) (((offset - haveReadBytes) >= byteBuffLength) ? byteBuffLength : (offset - haveReadBytes));
 
 				//read file and digest as we go along. (read into/from buffer starting at 0)
-				readFile.read(fileByteBuff, 0, readByteLen);
-				digest.update(fileByteBuff, 0, readByteLen);
+				int bytesRead = readFile.read(fileByteBuff, 0, readByteLen);
+				digest.update(fileByteBuff, 0, bytesRead);
 
-				haveReadBytes += readByteLen;
-            }
+				haveReadBytes += bytesRead;
+			}
 
 			byte[] finishedDigest = digest.digest();
 
@@ -85,9 +98,9 @@ public class HashyApplication {
 			System.out.printf("COMPARING\n%s\n%s\n", digestText, exHashStr);
 			//compare.
 			if (digestText.equals(exHashStr.toString())) {
-				System.out.printf("%s digest of %s MATCHES expected hash\n", args[0], args[1]);
+				System.out.printf("%s digest of %s MATCHES expected hash\n", algorithmString, fileToHash);
 			} else {
-				System.out.printf("%s digest of %s DOES NOT MATCH expected hash\n", args[0], args[1]);
+				System.out.printf("%s digest of %s DOES NOT MATCH expected hash\n", algorithmString, fileToHash);
 			}
 		} catch (FileNotFoundException ex) {
 			//missing file...
