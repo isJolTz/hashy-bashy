@@ -41,8 +41,12 @@ public class HashyApplication {
 
 		File file = new File(fileToHash);
 		File expectedHash = new File(hashToCompare);
-		if (!file.exists() || !expectedHash.exists()) {
-			System.out.println("Where the heck are the files?");
+		if (!file.exists()) {
+			System.out.println("Missing the first one?");
+			return;
+		}
+		if (!expectedHash.exists()) {
+			System.out.println("Missing the second one?");
 			return;
 		}
 
